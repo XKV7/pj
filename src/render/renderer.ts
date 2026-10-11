@@ -72,10 +72,15 @@ export class Renderer {
   }
 
   resize(): void {
-    const s = Math.max(1, Math.floor(Math.min(window.innerWidth / VIEW_W, window.innerHeight / VIEW_H)));
+    // 화면에 꽉 맞게(비정수 배율 허용) 표시하고, 내부 해상도는 정수 배율로 유지해 픽셀을 선명하게
+    const fit = Math.max(0.25, Math.min(window.innerWidth / VIEW_W, window.innerHeight / VIEW_H));
+    const dpr = window.devicePixelRatio || 1;
+    const s = Math.max(1, Math.min(6, Math.round(fit * dpr)));
     this.scale = s;
     this.canvas.width = VIEW_W * s;
     this.canvas.height = VIEW_H * s;
+    this.canvas.style.width = `${Math.floor(VIEW_W * fit)}px`;
+    this.canvas.style.height = `${Math.floor(VIEW_H * fit)}px`;
     this.ctx.imageSmoothingEnabled = false;
   }
 

@@ -133,7 +133,7 @@ export class Inventory {
     }
     if (this.held) {
       drawCard(ctx, this.held.id, input.mouseX - 7, input.mouseY - 7, 14);
-      tooltip = null;
+      tooltip = input.touchMode ? this.held.id : null;
     }
     if (tooltip) this.tooltip(ctx, tooltip, input.mouseX, input.mouseY);
     return closeClicked;

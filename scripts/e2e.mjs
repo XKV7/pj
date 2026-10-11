@@ -30,7 +30,7 @@ const shot = async (name) => {
   await page.screenshot({ path: `${OUT}/${name}.png` });
   console.log('screenshot', name);
 };
-const scale = async () => page.evaluate(() => window.__app.renderer.scale);
+const scale = async () => page.evaluate(() => document.getElementById('screen').getBoundingClientRect().width / 400);
 const box = async () => page.evaluate(() => {
   const r = document.getElementById('screen').getBoundingClientRect();
   return { x: r.left, y: r.top };
@@ -92,8 +92,11 @@ try {
   const s = await scale();
   const b = await box();
   await page.mouse.move(b.x + 20 * s, b.y + 56 * s);
+  await wait(100);
   await page.mouse.down();
+  await wait(100);
   await page.mouse.move(b.x + 293 * s, b.y + 51 * s, { steps: 5 });
+  await wait(100);
   await page.mouse.up();
   await wait(200);
   const bag0 = await page.evaluate(() => window.__app.game.player.bag[0]);

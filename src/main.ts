@@ -7,6 +7,7 @@ import { generateDemo, generateZone, generateSanctuary, generateBossArena, type 
 import { Inventory } from './ui/inventory';
 import { Sandbox } from './ui/sandbox';
 import { drawHud } from './ui/hud';
+import { drawTouchControls, drawRotateHint } from './ui/touch';
 import { text } from './ui/draw';
 import { drawTitle, drawControls, drawRecords, drawPause, drawDead, drawEnding } from './ui/screens';
 import { loadRecords, saveRecords, type Records } from './save';
@@ -38,7 +39,7 @@ class App {
   constructor() {
     this.canvas = document.getElementById('screen') as HTMLCanvasElement;
     this.renderer = new Renderer(this.canvas);
-    this.input = new Input(this.canvas, () => this.renderer.scale);
+    this.input = new Input(this.canvas);
     this.input.onFirstGesture = () => sound.init();
     this.records = loadRecords();
     this.demo = generateDemo(Math.floor(Math.random() * 1e6));
@@ -59,6 +60,7 @@ class App {
       this.fpsT = 0;
       this.frames = 0;
     }
+    this.input.gameplayTouch = this.state === 'game';
     const step = 1000 / 60;
     let n = 0;
     while (this.acc >= step && n < 3) {
@@ -253,6 +255,7 @@ class App {
         g.render();
         const ctx = r.uiBegin();
         if (this.state !== 'dead' && this.state !== 'ending') drawHud(ctx, g, this.fps);
+        if (this.state === 'game' && input.touchMode) drawTouchControls(ctx, input);
         if (this.state === 'paused') {
           const a = drawPause(ctx, input, sound.muted);
           if (a === 'resume') this.state = 'game';
@@ -298,6 +301,7 @@ class App {
         break;
       }
     }
+    if (input.touchMode && window.innerHeight > window.innerWidth) drawRotateHint(r.uiBegin());
     if (this.errors.length) {
       const ctx = r.uiBegin();
       text(ctx, '오류: ' + this.errors[0].split('\n')[0], 4, VIEW_H - 4, { size: 5, color: '#ff6060' });
