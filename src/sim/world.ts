@@ -57,7 +57,7 @@ export class World {
   supportChecks: number[] = [];
   stats = { activeChunks: 0, cells: 0 };
   private bfsQueue: Int32Array;
-  explosionCause = '폭발';
+  explosionCause = '화약 폭발에 휘말림';
 
   constructor(W: number, H: number, seed = 1234) {
     this.W = W;
@@ -140,6 +140,19 @@ export class World {
     if (x > 0 && CAT[this.mat[i - 1]] === Cat.LIQUID) this.life[i - 1] &= 0xff00;
     if (x < W - 1 && CAT[this.mat[i + 1]] === Cat.LIQUID) this.life[i + 1] &= 0xff00;
     if (y > 0 && CAT[this.mat[i - W]] === Cat.LIQUID) this.life[i - W] &= 0xff00;
+  }
+
+  /** 생성기용: 깨우기 없이 직접 쓰기 */
+  setRaw(x: number, y: number, m: number): void {
+    if (x < 0 || y < 0 || x >= this.W || y >= this.H) return;
+    const i = y * this.W + x;
+    this.mat[i] = m;
+    this.shade[i] = this.rnd() & 255;
+    const t = TINIT[m];
+    this.temp[i] = t === -32768 ? this.ambient : t;
+    this.life[i] = LIFE_RANGE[m] ? LIFE_MIN[m] + (this.rnd() % LIFE_RANGE[m]) : 0;
+    this.aux[i] = 0;
+    this.charge[i] = 0;
   }
 
   /** 가연물 점화 */
@@ -394,7 +407,7 @@ export class World {
     const jy = (j - jx) / this.W;
     if (r.explode) {
       this.setIdx(j, jx, jy, M.EMPTY, false);
-      this.explode(jx, jy, r.explode, 4, this.explosionCause, 0);
+      this.explode(jx, jy, r.explode, 4, mb === M.TOXGAS ? '독가스 폭발에 휘말림' : this.explosionCause, 0);
     } else if (r.toB === IGNITE) {
       this.ignite(jx, jy);
     } else if (r.toB !== KEEP) {
