@@ -91,6 +91,8 @@ export class Game {
   freeTaken = false;
   goldFlash = 0;
   bossDefeated = false;
+  /** 죽은 적 객체 풀 (재사용) */
+  enemyPool: Enemy[] = [];
   private explosionDmg = new Map<string, { dmg: number; owner: Owner | 'boss' }>();
   private bodyHitCd = new WeakMap<object, number>();
 
@@ -109,6 +111,7 @@ export class Game {
     this.stage = stage;
     this.stageIndex = index;
     this.time = 0;
+    for (const e of this.enemies) if (this.enemyPool.length < 64) this.enemyPool.push(e);
     this.enemies = [];
     this.items = level.items;
     this.boss = null;
@@ -154,7 +157,14 @@ export class Game {
   }
 
   spawnEnemy(kind: EnemyKind, x: number, y: number): Enemy {
-    const e = new Enemy(kind, x, y, Math.min(5, this.stageIndex));
+    const zone = Math.min(5, this.stageIndex);
+    const pi = this.enemyPool.findIndex((q) => q.kind === kind);
+    let e: Enemy;
+    if (pi >= 0) {
+      e = this.enemyPool[pi];
+      this.enemyPool.splice(pi, 1);
+      e.reset(x, y, zone);
+    } else e = new Enemy(kind, x, y, zone);
     e.body.x = x - e.body.w / 2;
     e.body.y = y - e.body.h;
     this.enemies.push(e);
@@ -215,6 +225,7 @@ export class Game {
           this.items.push(it);
         }
         this.enemies.splice(k, 1);
+        if (this.enemyPool.length < 64) this.enemyPool.push(e);
       }
     }
     if (p.dead && !this.over) {

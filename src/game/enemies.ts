@@ -1,5 +1,5 @@
 // 적 7종: 시뮬레이션과 상호작용하며, 순찰/감지/추적/도주 AI와 흐름장 길찾기를 사용한다.
-import { M, BLOCKS, type DamageType } from '../sim/materials';
+import { M, type DamageType } from '../sim/materials';
 import { Creature, moveBody, unstick, ENEMY_CAUSES, lineOfSight, type Resist } from './entity';
 import { SLIME, BAT, SPIRIT, BOMBER, MAGE, GOLEM, type Sprite } from '../render/sprites';
 import type { Renderer } from '../render/renderer';
@@ -70,6 +70,31 @@ export class Enemy extends Creature implements Target {
         this.segX.push(x + 4);
         this.segY.push(y + 4 + k * 4);
       }
+      this.hvy = -1;
+    }
+  }
+
+  /** 오브젝트 풀 재사용을 위한 초기화 */
+  reset(x: number, y: number, zone: number): void {
+    const d = this.def;
+    this.maxHp = Math.round(d.hp * (1 + zone * 0.18));
+    this.hp = this.maxHp;
+    this.zone = zone;
+    this.dead = false;
+    this.body.x = x;
+    this.body.y = y;
+    this.body.vx = 0;
+    this.body.vy = 0;
+    this.flash = this.invuln = this.wet = this.oily = this.burning = this.chilled = this.shocked = 0;
+    this.state = 'patrol';
+    this.alert = this.timer = this.animT = this.contactCd = this.attackT = this.fleeT = this.fuse = 0;
+    this.cooldown = 60 + Math.floor(Math.random() * 90);
+    if (this.kind === 'worm') {
+      for (let k = 0; k < this.segX.length; k++) {
+        this.segX[k] = x + 4;
+        this.segY[k] = y + 4 + k * 4;
+      }
+      this.hvx = 0;
       this.hvy = -1;
     }
   }
@@ -575,6 +600,3 @@ export class Enemy extends Creature implements Target {
   }
 }
 
-export function isEnemySolidAt(g: Game, x: number, y: number): boolean {
-  return BLOCKS[g.world.get(x, y)] === 1;
-}
