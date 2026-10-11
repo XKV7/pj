@@ -88,7 +88,7 @@ def({ id: M.STONE, name: '돌', cat: Cat.SOLID, density: 50, colors: [0x55525a, 
 def({ id: M.DIRT, name: '흙', cat: Cat.SOLID, density: 40, colors: [0x5a3f2a, 0x644630, 0x4f3724, 0x6b4c34, 0x553b27], hardness: 3, cond: 40 });
 def({
   id: M.WOOD, name: '나무', cat: Cat.SOLID, density: 7, colors: [0x6e4a26, 0x7a532b, 0x634221, 0x845d33],
-  hardness: 3, cond: 50, flammable: 0.06, ignite: 240, burnLife: [90, 170], burnInto: M.ASH,
+  hardness: 3, cond: 50, flammable: 0.12, ignite: 210, burnLife: [90, 170], burnInto: M.ASH,
 });
 def({ id: M.METAL, name: '금속', cat: Cat.SOLID, density: 80, colors: [0x7d8590, 0x8a929c, 0x737a84, 0x949ca6], hardness: 9, cond: 230, conductive: true, meltAt: 1500, meltInto: M.LAVA });
 def({ id: M.ICE, name: '얼음', cat: Cat.SOLID, density: 9, colors: [0xa8d8f0, 0xb8e2f6, 0x98cce8, 0xc6ecfa], hardness: 3, cond: 120, tempInit: -15, meltAt: 3, meltInto: M.WATER });

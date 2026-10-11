@@ -725,36 +725,34 @@ export function generateDemo(seed: number): Level {
     if (y > ground) w.setRaw(x, y, y > ground + 12 ? M.STONE : M.DIRT);
     else if (y < ceil) w.setRaw(x, y, M.STONE);
   }
-  // 물탱크 (위) → 흘러내림
-  fillRect(w, 40, 40, 70, 4, M.STONE);
-  fillRect(w, 40, 20, 4, 24, M.STONE);
-  fillRect(w, 106, 20, 4, 24, M.STONE);
-  fillRect(w, 44, 24, 62, 16, M.WATER);
-  fillRect(w, 104, 30, 2, 10, M.EMPTY);
-  // 나무 집
-  const hx = 160;
-  for (let y = 120; y < 172; y++) {
-    w.setRaw(hx, y, M.WOOD);
-    w.setRaw(hx + 70, y, M.WOOD);
-  }
+  // 물탱크 (오른쪽 위) → 바닥 구멍으로 용암 위에 쏟아짐
+  fillRect(w, 300, 40, 74, 4, M.STONE);
+  fillRect(w, 300, 18, 4, 26, M.STONE);
+  fillRect(w, 370, 18, 4, 26, M.STONE);
+  fillRect(w, 304, 22, 66, 18, M.WATER);
+  fillRect(w, 340, 40, 1, 4, M.EMPTY);
+  // 용암 분지
+  fillRect(w, 316, 150, 74, 30, M.EMPTY);
+  fillRect(w, 312, 180, 82, 10, M.STONE);
+  fillRect(w, 312, 150, 4, 30, M.STONE);
+  fillRect(w, 318, 168, 72, 12, M.LAVA);
+  // 나무 집 (왼쪽) + 기름
+  const hx = 18;
+  for (let y = 118; y < 172; y++) for (const x of [hx, hx + 1, hx + 69, hx + 70]) w.setRaw(x, y, M.WOOD);
   for (let x = hx; x <= hx + 70; x++) {
-    w.setRaw(x, 120, M.WOOD);
+    w.setRaw(x, 118, M.WOOD);
     w.setRaw(x, 145, M.WOOD);
   }
-  for (let k = 0; k < 20; k++) for (let x = hx - 5 + k; x <= hx + 75 - k; x++) w.setRaw(x, 119 - k, M.WOOD);
+  for (let k = 0; k < 20; k++) for (let x = hx - 5 + k; x <= hx + 75 - k; x++) w.setRaw(x, 117 - k, M.WOOD);
   fillRect(w, hx + 5, 140, 60, 5, M.OIL);
-  // 화약 더미
-  for (let x = 250; x < 290; x++) for (let y = 160; y < 175; y++) if (w.get(x, y) === M.EMPTY && y > 172 - (20 - Math.abs(x - 270)) * 0.6) w.setRaw(x, y, M.GUNPOWDER);
-  // 용암 분지
-  fillRect(w, 320, 150, 70, 30, M.EMPTY);
-  fillRect(w, 316, 180, 80, 10, M.STONE);
-  fillRect(w, 322, 168, 66, 12, M.LAVA);
-  // 모래 언덕, 얼음, 산
-  for (let k = 0; k < 6; k++) blob(w, rng, rng.int(10, 140), rng.int(150, 168), 4, M.SAND, false);
-  fillRect(w, 120, 60, 25, 6, M.ICE);
+  for (let y = 146; y < 172; y++) for (let x = hx + 1; x < hx + 70; x++) if (w.get(x, y) === M.EMPTY && y < 150) w.setRaw(x, y, M.EMPTY);
+  // 화약 더미 (집 옆)
+  for (let x = 96; x < 136; x++) for (let y = 150; y < 190; y++) if (w.get(x, y) === M.EMPTY && y > 178 - (20 - Math.abs(x - 116)) * 0.7) w.setRaw(x, y, M.GUNPOWDER);
+  // 모래 언덕, 얼음 덩어리
+  for (let k = 0; k < 5; k++) blob(w, rng, rng.int(270, 300), rng.int(150, 165), 4, M.SAND, false);
+  fillRect(w, 150, 56, 20, 5, M.ICE);
   // 불씨
-  w.setRaw(hx + 2, 171, M.FIRE);
-  w.setRaw(hx + 3, 171, M.FIRE);
+  for (let k = 0; k < 4; k++) w.ignite(hx, 160 + k * 3);
   frame(w, 1);
   w.wakeAll();
   return {

@@ -18,7 +18,7 @@ export interface Reaction {
 
 export const REACTIONS: Reaction[] = [
   // --- 연소 ---
-  { name: '불 + 나무 → 확산 연소', a: M.FIRE, b: M.WOOD, chance: 0.05, toA: KEEP, toB: IGNITE },
+  { name: '불 + 나무 → 확산 연소', a: M.FIRE, b: M.WOOD, chance: 0.12, toA: KEEP, toB: IGNITE },
   { name: '불 + 기름 → 확산 연소', a: M.FIRE, b: M.OIL, chance: 0.45, toA: KEEP, toB: IGNITE },
   { name: '불 + 버섯 → 연소 (독가스 방출)', a: M.FIRE, b: M.FUNGUS, chance: 0.08, toA: KEEP, toB: IGNITE },
   { name: '불 + 화약 → 폭발', a: M.FIRE, b: M.GUNPOWDER, chance: 0.9, toA: KEEP, toB: M.EMPTY, explode: 5 },

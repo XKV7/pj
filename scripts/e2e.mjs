@@ -7,7 +7,7 @@ const PORT = 5179;
 const OUT = 'screenshots';
 mkdirSync(OUT, { recursive: true });
 
-const server = spawn('npx', ['vite', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
 await new Promise((res, rej) => {
   const t = setTimeout(() => rej(new Error('dev server timeout')), 30000);
   server.stdout.on('data', (d) => {

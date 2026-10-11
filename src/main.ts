@@ -218,7 +218,10 @@ class App {
         const a = drawTitle(ctx, input, this.demoT);
         if (a) sound.click();
         if (a === 'start') this.newGame();
-        else if (a === 'controls') this.state = 'controls';
+        else if (a === 'controls') {
+          this.prevState = 'title';
+          this.state = 'controls';
+        }
         else if (a === 'records') {
           this.records = loadRecords();
           this.state = 'records';

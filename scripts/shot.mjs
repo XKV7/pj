@@ -1,0 +1,23 @@
+// 단일 스크린샷 도우미: node scripts/shot.mjs <이름> <대기ms> [평가할 JS]
+import { spawn } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
+import { chromium } from 'playwright';
+const [name = 'shot', waitMs = '3000', js = ''] = process.argv.slice(2);
+const PORT = 5182;
+mkdirSync('screenshots', { recursive: true });
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
+await new Promise((res) => server.stdout.on('data', (d) => String(d).includes('Local') && res()));
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+const errors = [];
+page.on('pageerror', (e) => errors.push(e.message));
+page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+await page.goto(`http://localhost:${PORT}/`);
+await page.waitForTimeout(500);
+if (js) console.log('eval:', await page.evaluate(js));
+await page.waitForTimeout(Number(waitMs));
+await page.screenshot({ path: `screenshots/${name}.png` });
+console.log('errors', errors);
+await browser.close();
+server.kill();
+process.exit(0);

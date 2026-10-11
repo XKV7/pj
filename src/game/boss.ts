@@ -206,10 +206,12 @@ export class Boss extends Creature implements Target {
       // 양쪽 천장 배수구에서 물이 쏟아짐 (일정량까지)
       if (this.waterPoured < 16000) {
         for (const sx of [70, w.W - 70]) {
-          for (let k = 0; k < 4; k++) {
+          for (let k = 0; k < 6; k++) {
             const x = sx + Math.floor(Math.random() * 6) - 3;
-            if (w.get(x, 30) === M.EMPTY) {
-              w.set(x, 30, M.WATER);
+            let y = 24;
+            while (y < 90 && w.get(x, y) !== M.EMPTY) y++;
+            if (y < 90) {
+              w.set(x, y, M.WATER);
               this.waterPoured++;
             }
           }
