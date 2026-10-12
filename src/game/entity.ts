@@ -263,7 +263,7 @@ export class Creature {
     if (e.acid > 0) this.applyDamage(MATS[M.ACID].damage! * dt * Math.min(1, e.acid / 8 + 0.3), 'acid', causes.acid);
     if (e.lava > 0) {
       this.applyDamage(MATS[M.LAVA].damage! * dt * Math.min(1, e.lava / 6 + 0.4), 'fire', causes.lava);
-      if (this.canBurn) this.burning = Math.max(this.burning, 240);
+      if (this.canBurn) this.burning = Math.max(this.burning, 150);
     }
     if (e.goldLiq > 0) this.applyDamage(MATS[M.GOLD_LIQ].damage! * dt, 'fire', causes.lava);
     if (e.poison > 0) this.applyDamage(MATS[M.POISON].damage! * dt, 'poison', causes.poison);
@@ -272,7 +272,7 @@ export class Creature {
     if (e.frost > 0) this.applyDamage(MATS[M.FROST].damage! * dt, 'ice', causes.frost);
     if (e.fire > 0) {
       this.applyDamage(MATS[M.FIRE].damage! * dt * Math.min(1, e.fire / 6 + 0.3), 'fire', causes.fire);
-      if (this.canBurn && this.wet <= 0) this.burning = Math.max(this.burning, this.oily > 0 ? 360 : 150);
+      if (this.canBurn && this.wet <= 0) this.burning = Math.max(this.burning, this.oily > 0 ? 200 : 90);
     }
     if (e.charged > 0 || e.spark > 0) {
       this.applyDamage(MATS[M.SPARK].damage! * dt * (e.charged > 0 ? 1.5 : 1), 'elec', causes.elec);
@@ -281,7 +281,7 @@ export class Creature {
     if (this.burning > 0) {
       this.burning--;
       if (this.wet > 0 || e.water > 0) this.burning = 0;
-      this.applyDamage(9 * dt, 'fire', causes.burning);
+      this.applyDamage(4 * dt, 'fire', causes.burning);
     }
     return e;
   }

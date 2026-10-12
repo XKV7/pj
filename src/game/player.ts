@@ -136,14 +136,9 @@ export class Player extends Creature implements Target {
     b.liquidMat = env.liquidMat;
     if (env.liquid > 0.2 && Math.abs(b.vy) > 2) g.sound.splash();
     if (env.charged > 0) g.sound.shock();
-    // 불 붙은 플레이어는 주변에 불씨를 떨어뜨림
-    if (this.burning > 0) {
-      if ((g.time & 3) === 0) w.particles.spawnFx(b.x + Math.random() * b.w, b.y + Math.random() * b.h, (Math.random() - 0.5) * 0.5, -0.8, (g.time & 4) ? 0xff20a0ff : 0xff3060ff, 18, -0.02, 1);
-      if ((g.time & 31) === 0) {
-        const fx = Math.floor(b.x + Math.random() * b.w);
-        const fy = Math.floor(b.y + b.h);
-        if (w.get(fx, fy - 1) === M.EMPTY) w.set(fx, fy - 1, M.FIRE);
-      }
+    // 불 붙은 플레이어 시각 효과 (자기 발밑에 불을 떨어뜨려 다시 불붙는 일이 없도록 불씨는 시각 효과만)
+    if (this.burning > 0 && (g.time & 3) === 0) {
+      w.particles.spawnFx(b.x + Math.random() * b.w, b.y + Math.random() * b.h, (Math.random() - 0.5) * 0.5, -0.8, (g.time & 4) ? 0xff20a0ff : 0xff3060ff, 18, -0.02, 1);
     }
     if (this.wet > 0 && (g.time % 9) === 0) w.particles.spawnFx(b.x + Math.random() * b.w, b.y + 4 + Math.random() * 6, 0, 0.5, 0xffe08040, 20, 0.12);
     if (this.oily > 0 && (g.time % 13) === 0) w.particles.spawnFx(b.x + Math.random() * b.w, b.y + 6 + Math.random() * 4, 0, 0.3, 0xff1c2c3a, 24, 0.1);

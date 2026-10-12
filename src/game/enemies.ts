@@ -155,7 +155,7 @@ export class Enemy extends Creature implements Target {
       g.damageTarget(p, this.def.contact * (1 + this.zone * 0.1), this.def.contactType, this.def.cause, Math.sign(dx) * 2, -1.5, 'enemy');
       this.contactCd = 45;
       if (this.kind === 'bat') {
-        if (p.wet <= 0) p.burning = Math.max(p.burning, 150);
+        if (p.wet <= 0) p.burning = Math.max(p.burning, 90);
         this.fleeT = 50;
       }
       if (this.kind === 'spirit') p.chilled = 150;

@@ -129,7 +129,7 @@ def({
 });
 def({
   id: M.FIRE, name: '불', cat: Cat.ENERGY, density: 1, colors: [0xff5a10, 0xff8a1a, 0xffc030, 0xff3c08, 0xffe070],
-  hardness: 0, cond: 255, heat: 650, life: [18, 45], decayInto: M.SMOKE, decayChance: 0.25, light: [1.0, 0.55, 0.15], damage: 18, dmgType: 'fire',
+  hardness: 0, cond: 255, heat: 650, life: [18, 45], decayInto: M.SMOKE, decayChance: 0.25, light: [1.0, 0.55, 0.15], damage: 10, dmgType: 'fire',
 });
 def({
   id: M.SPARK, name: '전기', cat: Cat.ENERGY, density: 1, colors: [0xe8f4ff, 0x9ad0ff, 0xffffff, 0x7ab8ff],

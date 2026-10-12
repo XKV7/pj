@@ -252,7 +252,7 @@ export class ProjectileSystem {
       c.wet = 360;
       c.burning = 0;
     }
-    if ((id === 'fireball' || id === 'e_fire') && c.burning !== undefined && c.canBurn && !(c.wet && c.wet > 0)) c.burning = 200;
+    if ((id === 'fireball' || id === 'e_fire') && c.burning !== undefined && c.canBurn && !(c.wet && c.wet > 0)) c.burning = 120;
     if ((id === 'icelance' || id === 'frostorb') && c.chilled !== undefined) c.chilled = 150;
   }
 
