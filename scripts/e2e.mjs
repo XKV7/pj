@@ -105,6 +105,19 @@ try {
   await page.mouse.down();
   await page.mouse.move(b.x + 20 * s, b.y + 56 * s, { steps: 5 });
   await page.mouse.up();
+  // 그냥 클릭(같은 칸에 놓기)해도 카드가 사라지지 않아야 함
+  const before = await page.evaluate(() => window.__app.game.player.wands[0].slots.join(','));
+  await page.mouse.move(b.x + 36 * s, b.y + 56 * s);
+  await wait(100);
+  await page.mouse.down();
+  await wait(80);
+  await page.mouse.up();
+  await wait(150);
+  await page.mouse.click(b.x + 293 * s, b.y + 51 * s);
+  await wait(150);
+  const after = await page.evaluate(() => window.__app.game.player.wands[0].slots.join(','));
+  console.log('click keeps card:', before === after, before, '|', after);
+  if (before !== after) errors.push('card lost on click');
   await page.keyboard.press('Tab');
   await wait(200);
   await page.keyboard.press('F3');

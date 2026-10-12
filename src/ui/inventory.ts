@@ -116,9 +116,10 @@ export class Inventory {
       }
     } else if (this.held && (input.released || !input.mouseDown)) {
       if (hoverRef) {
+        // 원래 칸에 다시 놓는 경우(그냥 클릭)에도 카드가 지워지지 않도록 원래 칸을 먼저 채운다
         const existing = this.getId(g, hoverRef);
-        this.setId(g, hoverRef, this.held.id);
         this.setId(g, this.held.from, existing);
+        this.setId(g, hoverRef, this.held.id);
         sound.click();
       } else {
         const inPanel = input.mouseX < 272 && input.mouseY > 26 && input.mouseY < 205;
