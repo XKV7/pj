@@ -16,6 +16,16 @@ npm test           # Vitest: 시뮬레이션 반응 단위 테스트
 npm run e2e        # Playwright 헤드리스 스모크 테스트 (스크린샷: screenshots/)
 ```
 
+## 웹앱(PWA)으로 설치
+
+GitHub Pages에 배포된 주소(`https://xkv7.github.io/pj/`)를 열면 설치형 웹앱으로 쓸 수 있습니다. 한 번 연 뒤에는 오프라인에서도 실행됩니다.
+
+- **안드로이드(Chrome):** 메뉴 → "앱 설치" 또는 "홈 화면에 추가"
+- **iPhone·iPad(Safari):** 공유 버튼 → "홈 화면에 추가"
+- **PC(Chrome·Edge):** 주소창 오른쪽의 설치 아이콘
+
+`ccr-ee701016-08pklw` 브랜치에 푸시하면 GitHub Actions(`.github/workflows/pages.yml`)가 테스트·빌드 후 자동 배포합니다. 앱 아이콘은 빌드 때 `scripts/gen-icons.mjs`가 코드로 그립니다. 오프라인 동작은 `npm run build && node scripts/pwa.mjs`로 점검할 수 있습니다.
+
 ## 조작법
 
 | 키 | 동작 |

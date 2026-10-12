@@ -1,0 +1,32 @@
+// PWA 점검: 프로덕션 빌드를 서빙 → 서비스 워커 등록 → 오프라인 상태에서 새로고침해도 게임이 뜨는지.
+import { spawn } from 'node:child_process';
+import { chromium } from 'playwright';
+const PORT = 5185;
+const server = spawn('node', ['node_modules/vite/bin/vite.js', 'preview', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
+await new Promise((res) => server.stdout.on('data', (d) => String(d).includes('Local') && res()));
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+const page = await ctx.newPage();
+const errors = [];
+page.on('pageerror', (e) => errors.push(e.message));
+await page.goto(`http://localhost:${PORT}/`);
+const manifest = await page.evaluate(async () => {
+  const href = document.querySelector('link[rel=manifest]').href;
+  const m = await (await fetch(href)).json();
+  return { name: m.name, display: m.display, icons: m.icons.length };
+});
+console.log('manifest', JSON.stringify(manifest));
+await page.evaluate(async () => { await navigator.serviceWorker.ready; });
+await page.reload();
+await page.waitForTimeout(1500);
+console.log('controlled', await page.evaluate(() => !!navigator.serviceWorker.controller));
+await ctx.setOffline(true);
+await page.reload();
+await page.waitForTimeout(2000);
+const ok = await page.evaluate(() => !!window.__app && window.__app.state === 'title' && window.__app.errors.length === 0);
+console.log('offline reload works:', ok);
+await page.screenshot({ path: 'screenshots/pwa-offline.png' });
+console.log('errors', errors);
+await browser.close();
+server.kill();
+process.exit(ok && !errors.length ? 0 : 1);

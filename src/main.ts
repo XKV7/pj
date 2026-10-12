@@ -322,4 +322,11 @@ class App {
 }
 
 const app = new App();
+
+// 설치형 웹앱(PWA): 오프라인 지원 서비스 워커 등록. 지원하지 않거나 막힌 환경(예: 아티팩트 프레임)에서는 조용히 건너뛴다.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !import.meta.env.DEV) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => undefined);
+  });
+}
 (window as unknown as { __app: App }).__app = app;
