@@ -5,8 +5,9 @@ import { text, panel, button, wrap } from './draw';
 import { formatTime, type Records } from '../save';
 import type { RunSummary } from '../game/game';
 import { ZONES } from '../game/worldgen';
+import { settings, saveSettings } from '../settings';
 
-export type TitleAction = 'start' | 'controls' | 'records' | 'sandbox' | null;
+export type TitleAction = 'start' | 'controls' | 'records' | 'sandbox' | 'settings' | null;
 
 export function drawTitle(ctx: CanvasRenderingContext2D, input: Input, t: number): TitleAction {
   const g = ctx.createLinearGradient(0, 0, 0, VIEW_H);
@@ -22,10 +23,11 @@ export function drawTitle(ctx: CanvasRenderingContext2D, input: Input, t: number
   let action: TitleAction = null;
   const bw = 120;
   const bx = (VIEW_W - bw) / 2;
-  if (button(ctx, input, bx, 94, bw, 17, '게임 시작', false, 8.5)) action = 'start';
-  if (button(ctx, input, bx, 115, bw, 17, '조작법', false, 8.5)) action = 'controls';
-  if (button(ctx, input, bx, 136, bw, 17, '최고 기록', false, 8.5)) action = 'records';
-  if (button(ctx, input, bx, 157, bw, 17, '시뮬레이션 놀이터', false, 8.5)) action = 'sandbox';
+  if (button(ctx, input, bx, 88, bw, 17, '게임 시작', false, 8.5)) action = 'start';
+  if (button(ctx, input, bx, 108, bw, 17, '조작법', false, 8.5)) action = 'controls';
+  if (button(ctx, input, bx, 128, bw, 17, '설정', false, 8.5)) action = 'settings';
+  if (button(ctx, input, bx, 148, bw, 17, '최고 기록', false, 8.5)) action = 'records';
+  if (button(ctx, input, bx, 168, bw, 17, '시뮬레이션 놀이터', false, 8.5)) action = 'sandbox';
   text(ctx, 'Enter: 시작   ·   M: 음소거   ·   F3: 디버그', VIEW_W / 2, VIEW_H - 8, { size: 5.5, align: 'center', color: '#9080b0' });
   if (input.pressed('Enter')) action = 'start';
   return action;
@@ -85,18 +87,19 @@ export function drawRecords(ctx: CanvasRenderingContext2D, input: Input, r: Reco
   return back || input.pressed('Escape');
 }
 
-export type PauseAction = 'resume' | 'controls' | 'title' | null;
+export type PauseAction = 'resume' | 'controls' | 'settings' | 'title' | null;
 
 export function drawPause(ctx: CanvasRenderingContext2D, input: Input, muted: boolean): PauseAction | 'mute' {
   ctx.fillStyle = 'rgba(4,2,10,0.65)';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-  text(ctx, '일시정지', VIEW_W / 2, 66, { size: 16, align: 'center', bold: true, color: '#e8d8ff' });
+  text(ctx, '일시정지', VIEW_W / 2, 62, { size: 16, align: 'center', bold: true, color: '#e8d8ff' });
   const bw = 120;
   const bx = (VIEW_W - bw) / 2;
-  if (button(ctx, input, bx, 84, bw, 16, '계속하기', false, 8)) return 'resume';
-  if (button(ctx, input, bx, 104, bw, 16, '조작법', false, 8)) return 'controls';
-  if (button(ctx, input, bx, 124, bw, 16, muted ? '소리 켜기' : '음소거', false, 8)) return 'mute';
-  if (button(ctx, input, bx, 144, bw, 16, '타이틀로 (포기)', false, 8)) return 'title';
+  if (button(ctx, input, bx, 76, bw, 16, '계속하기', false, 8)) return 'resume';
+  if (button(ctx, input, bx, 96, bw, 16, '조작법', false, 8)) return 'controls';
+  if (button(ctx, input, bx, 116, bw, 16, '설정', false, 8)) return 'settings';
+  if (button(ctx, input, bx, 136, bw, 16, muted ? '소리 켜기' : '음소거', false, 8)) return 'mute';
+  if (button(ctx, input, bx, 156, bw, 16, '타이틀로 (포기)', false, 8)) return 'title';
   return null;
 }
 
@@ -146,4 +149,24 @@ export function drawEnding(ctx: CanvasRenderingContext2D, input: Input, s: RunSu
   summaryPanel(ctx, s, 80);
   if (t > 90 && button(ctx, input, VIEW_W / 2 - 44, VIEW_H - 24, 88, 15, '타이틀로', false, 7.5)) return 'title';
   return null;
+}
+
+/** 설정 화면. 반환: true 면 닫기 */
+export function drawSettings(ctx: CanvasRenderingContext2D, input: Input, muted: boolean, toggleMute: () => void): boolean {
+  ctx.fillStyle = 'rgba(4,2,10,0.85)';
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+  panel(ctx, 40, 20, VIEW_W - 80, VIEW_H - 40, 0.9);
+  text(ctx, '설정', VIEW_W / 2, 38, { size: 10, align: 'center', bold: true, color: '#e8d8ff' });
+  const row = (y: number, label: string, desc: string, on: boolean, onToggle: () => void): void => {
+    text(ctx, label, 60, y + 9, { size: 7.5, bold: true, color: '#ffd890' });
+    wrap(ctx, desc, 190, 5.5).forEach((l, i) => text(ctx, l, 60, y + 19 + i * 7, { size: 5.5, color: '#b8a8d0' }));
+    if (button(ctx, input, VIEW_W - 120, y + 1, 60, 14, on ? '켜짐' : '꺼짐', on, 7)) onToggle();
+  };
+  row(52, '자동 조준', '조준 방향 근처(약 20°)에 적이 있으면 조준을 그 적에게 자동으로 맞춥니다. 벽에 가려 보이지 않는 적은 제외합니다. 보정된 대상에는 표시가 나타납니다.', settings.autoAim, () => {
+    settings.autoAim = !settings.autoAim;
+    saveSettings();
+  });
+  row(104, '소리', '효과음, 환경음, 음악을 켜거나 끕니다. 게임 중 M 키로도 바꿀 수 있습니다.', !muted, toggleMute);
+  const back = button(ctx, input, VIEW_W / 2 - 40, VIEW_H - 40, 80, 14, '돌아가기', false, 7);
+  return back || input.pressed('Escape');
 }

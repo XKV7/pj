@@ -176,6 +176,26 @@ export function drawHud(ctx: CanvasRenderingContext2D, g: Game, fps: number): vo
     if (bn.sub) text(ctx, bn.sub, VIEW_W / 2, 85, { size: 6, align: 'center', color: '#c0b0d8', alpha: Math.max(0, a) });
   }
 
+  // 자동 조준 대상 표시
+  const at = g.aimTarget;
+  if (at && !at.dead && !g.player.dead) {
+    const cx = at.body.cx - g.renderer.camX;
+    const cy = at.body.cy - g.renderer.camY;
+    const hw = Math.max(5, at.body.w / 2 + 3);
+    const hh = Math.max(5, at.body.h / 2 + 3);
+    const k = 3;
+    ctx.strokeStyle = 'rgba(255,120,90,0.9)';
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+      const px = cx + sx * hw;
+      const py = cy + sy * hh;
+      ctx.moveTo(px, py - sy * k);
+      ctx.lineTo(px, py);
+      ctx.lineTo(px - sx * k, py);
+    }
+    ctx.stroke();
+  }
   // 조준선 (조준 조이스틱 사용 중에는 숨김)
   if (g.input.aimSource !== 'stick') {
     const mx = g.input.mouseX;

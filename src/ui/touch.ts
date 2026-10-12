@@ -10,7 +10,7 @@ function drawAimLine(ctx: CanvasRenderingContext2D, input: Input, g: Game): void
   const tip = g.player.tipPos();
   const sx = tip.x - g.renderer.camX;
   const sy = tip.y - g.renderer.camY;
-  const a = input.aimAngle;
+  const a = g.player.aimAngle;
   const ready = !!g.player.wand && g.player.wand.cooldown <= 0;
   ctx.fillStyle = ready ? '#fff0b0' : '#a090c0';
   for (let k = 1; k <= 14; k++) {

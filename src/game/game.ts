@@ -4,7 +4,7 @@ import type { World, ExplosionInfo } from '../sim/world';
 import { Renderer, VIEW_W, VIEW_H } from '../render/renderer';
 import { sound } from '../audio/audio';
 import type { Input } from '../input';
-import type { Body } from './entity';
+import { lineOfSight, type Body } from './entity';
 import { Player, BAG_SIZE } from './player';
 import { Enemy, type EnemyKind } from './enemies';
 import { Boss } from './boss';
@@ -328,6 +328,38 @@ export class Game {
 
   enemyShoot(id: string, x: number, y: number, angle: number, cause: string): void {
     this.projectiles.spawn(this, card(id), newMods(), null, x, y, angle, 'enemy', cause);
+  }
+
+  /** 자동 조준이 현재 보정 중인 대상 (HUD 표시용) */
+  aimTarget: Target | null = null;
+
+  /** 자동 조준: 조준 방향 근처(±20°)에서 보이는 적을 찾아 그 방향으로 보정한 각도를 돌려준다 */
+  aimAssist(x: number, y: number, angle: number): number {
+    const MAX_DIFF = 0.35;
+    const RANGE = 240;
+    let best: Target | null = null;
+    let bestScore = Infinity;
+    let bestAngle = angle;
+    for (const t of this.targets('player')) {
+      const tx = t.body.cx;
+      const ty = t.body.cy;
+      const dist = Math.hypot(tx - x, ty - y);
+      if (dist > RANGE || dist < 4) continue;
+      const a = Math.atan2(ty - y, tx - x);
+      let d = a - angle;
+      while (d > Math.PI) d -= Math.PI * 2;
+      while (d < -Math.PI) d += Math.PI * 2;
+      if (Math.abs(d) > MAX_DIFF) continue;
+      if (!lineOfSight(this.world, x, y, tx, ty)) continue;
+      const score = Math.abs(d) + dist / 1500;
+      if (score < bestScore) {
+        bestScore = score;
+        best = t;
+        bestAngle = a;
+      }
+    }
+    this.aimTarget = best;
+    return bestAngle;
   }
 
   // ---------- 대상/피해 ----------

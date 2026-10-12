@@ -9,10 +9,11 @@ import { Sandbox } from './ui/sandbox';
 import { drawHud } from './ui/hud';
 import { drawTouchControls, drawRotateHint } from './ui/touch';
 import { text } from './ui/draw';
-import { drawTitle, drawControls, drawRecords, drawPause, drawDead, drawEnding } from './ui/screens';
+import { drawSettings, drawTitle, drawControls, drawRecords, drawPause, drawDead, drawEnding } from './ui/screens';
 import { loadRecords, saveRecords, type Records } from './save';
+import { loadSettings } from './settings';
 
-type State = 'title' | 'controls' | 'records' | 'game' | 'paused' | 'inventory' | 'dead' | 'ending' | 'sandbox';
+type State = 'title' | 'controls' | 'settings' | 'records' | 'game' | 'paused' | 'inventory' | 'dead' | 'ending' | 'sandbox';
 
 class App {
   canvas: HTMLCanvasElement;
@@ -42,6 +43,7 @@ class App {
     this.input = new Input(this.canvas);
     this.input.onFirstGesture = () => sound.init();
     this.records = loadRecords();
+    loadSettings();
     this.demo = generateDemo(Math.floor(Math.random() * 1e6));
     this.demo.world.setFullActiveRegion();
     window.addEventListener('resize', () => this.renderer.resize());
@@ -100,6 +102,7 @@ class App {
       switch (this.state) {
         case 'title':
         case 'controls':
+        case 'settings':
         case 'records':
           this.demoT++;
           this.demo.world.step();
@@ -220,9 +223,9 @@ class App {
         const a = drawTitle(ctx, input, this.demoT);
         if (a) sound.click();
         if (a === 'start') this.newGame();
-        else if (a === 'controls') {
+        else if (a === 'controls' || a === 'settings') {
           this.prevState = 'title';
-          this.state = 'controls';
+          this.state = a;
         }
         else if (a === 'records') {
           this.records = loadRecords();
@@ -238,6 +241,13 @@ class App {
         else this.drawDemo();
         const ctx = r.uiBegin();
         if (drawControls(ctx, input)) this.state = this.game && this.prevState === 'paused' ? 'paused' : 'title';
+        break;
+      }
+      case 'settings': {
+        if (this.game && this.prevState === 'paused') this.game.render();
+        else this.drawDemo();
+        const ctx = r.uiBegin();
+        if (drawSettings(ctx, input, sound.muted, () => sound.toggleMute())) this.state = this.game && this.prevState === 'paused' ? 'paused' : 'title';
         break;
       }
       case 'records': {
@@ -259,9 +269,9 @@ class App {
         if (this.state === 'paused') {
           const a = drawPause(ctx, input, sound.muted);
           if (a === 'resume') this.state = 'game';
-          else if (a === 'controls') {
+          else if (a === 'controls' || a === 'settings') {
             this.prevState = 'paused';
-            this.state = 'controls';
+            this.state = a;
           } else if (a === 'mute') sound.toggleMute();
           else if (a === 'title') {
             if (g.summary === null) {

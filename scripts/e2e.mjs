@@ -102,11 +102,15 @@ try {
   const bag0 = await page.evaluate(() => window.__app.game.player.bag[0]);
   console.log('bag[0] after drag:', bag0);
   await page.mouse.move(b.x + 293 * s, b.y + 51 * s);
+  await wait(100);
   await page.mouse.down();
+  await wait(100);
   await page.mouse.move(b.x + 20 * s, b.y + 56 * s, { steps: 5 });
+  await wait(100);
   await page.mouse.up();
+  await wait(150);
   // 그냥 클릭(같은 칸에 놓기)해도 카드가 사라지지 않아야 함
-  const before = await page.evaluate(() => window.__app.game.player.wands[0].slots.join(','));
+  const before = await page.evaluate(() => window.__app.game.player.wands[0].slots.join(',') + '/' + window.__app.game.player.bag.filter(Boolean).length);
   await page.mouse.move(b.x + 36 * s, b.y + 56 * s);
   await wait(100);
   await page.mouse.down();
@@ -115,7 +119,7 @@ try {
   await wait(150);
   await page.mouse.click(b.x + 293 * s, b.y + 51 * s);
   await wait(150);
-  const after = await page.evaluate(() => window.__app.game.player.wands[0].slots.join(','));
+  const after = await page.evaluate(() => window.__app.game.player.wands[0].slots.join(',') + '/' + window.__app.game.player.bag.filter(Boolean).length);
   console.log('click keeps card:', before === after, before, '|', after);
   if (before !== after) errors.push('card lost on click');
   await page.keyboard.press('Tab');
@@ -151,10 +155,10 @@ try {
   // 타이틀로 → 샌드박스
   await page.keyboard.press('Escape');
   await wait(200);
-  await clickLogical(200, 152);
+  await clickLogical(200, 164);
   await wait(500);
   console.log('state:', await state());
-  await clickLogical(200, 165);
+  await clickLogical(200, 176);
   await wait(500);
   console.log('state:', await state());
   // 모래, 물, 용암 그리기

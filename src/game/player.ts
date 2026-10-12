@@ -5,6 +5,7 @@ import { starterWands, type Wand } from './spells';
 import { PLAYER } from '../render/sprites';
 import { hexAbgr, type Renderer } from '../render/renderer';
 import type { Input } from '../input';
+import { settings } from '../settings';
 import type { Game, Target } from './game';
 
 export const BAG_SIZE = 16;
@@ -79,6 +80,10 @@ export class Player extends Creature implements Target {
       this.aimAngle = Math.atan2(my - hand.y, mx - hand.x);
       this.facing = mx >= b.cx ? 1 : -1;
     }
+    if (settings.autoAim) {
+      this.aimAngle = g.aimAssist(hand.x, hand.y, this.aimAngle);
+      this.facing = Math.cos(this.aimAngle) >= 0 ? 1 : -1;
+    } else g.aimTarget = null;
 
     // 이동
     const left = input.down('KeyA') || input.down('ArrowLeft');
