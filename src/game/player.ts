@@ -28,6 +28,7 @@ export class Player extends Creature implements Target {
   goldSoundT = 0;
   deathT = 0;
   castFlash = 0;
+  pendingFire = 0;
 
   constructor(x: number, y: number) {
     super(x, y, 6, 12, 100);
@@ -71,8 +72,13 @@ export class Player extends Creature implements Target {
     const mx = g.renderer.camX + input.mouseX;
     const my = g.renderer.camY + input.mouseY;
     const hand = this.handPos();
-    this.aimAngle = Math.atan2(my - hand.y, mx - hand.x);
-    this.facing = mx >= b.cx ? 1 : -1;
+    if (input.aimSource === 'stick') {
+      this.aimAngle = input.aimAngle;
+      this.facing = Math.cos(input.aimAngle) >= 0 ? 1 : -1;
+    } else {
+      this.aimAngle = Math.atan2(my - hand.y, mx - hand.x);
+      this.facing = mx >= b.cx ? 1 : -1;
+    }
 
     // 이동
     const left = input.down('KeyA') || input.down('ArrowLeft');
@@ -159,8 +165,13 @@ export class Player extends Creature implements Target {
       }
     }
     const wd = this.wand;
-    if (wd && input.mouseDown && !g.uiCapturesMouse) {
+    // 조준 조이스틱을 떼면 한 번 발사 (지연 중이면 잠시 대기 후 발사)
+    if (input.consumeAimFire()) this.pendingFire = 30;
+    const stickFire = this.pendingFire > 0;
+    if (this.pendingFire > 0) this.pendingFire--;
+    if (wd && ((input.mouseDown && !g.uiCapturesMouse) || stickFire)) {
       const res = wd.tryCast();
+      if (res && stickFire) this.pendingFire = 0;
       if (res === 'fizzle') g.sound.fizzle();
       else if (res) {
         const tip = this.tipPos();

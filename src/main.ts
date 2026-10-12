@@ -255,7 +255,7 @@ class App {
         g.render();
         const ctx = r.uiBegin();
         if (this.state !== 'dead' && this.state !== 'ending') drawHud(ctx, g, this.fps);
-        if (this.state === 'game' && input.touchMode) drawTouchControls(ctx, input);
+        if (this.state === 'game' && input.touchMode) drawTouchControls(ctx, input, g);
         if (this.state === 'paused') {
           const a = drawPause(ctx, input, sound.muted);
           if (a === 'resume') this.state = 'game';

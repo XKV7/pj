@@ -281,8 +281,9 @@ export class Game {
   private updateCamera(): void {
     const r = this.renderer;
     const p = this.player.body;
-    const mx = this.input.mouseX - VIEW_W / 2;
-    const my = this.input.mouseY - VIEW_H / 2;
+    const stick = this.input.aimSource === 'stick';
+    const mx = stick ? Math.cos(this.input.aimAngle) * 200 : this.input.mouseX - VIEW_W / 2;
+    const my = stick ? Math.sin(this.input.aimAngle) * 140 : this.input.mouseY - VIEW_H / 2;
     const tx = p.cx - VIEW_W / 2 + Math.max(-60, Math.min(60, mx * 0.25));
     const ty = p.cy - VIEW_H / 2 + Math.max(-40, Math.min(40, my * 0.25));
     r.camX += (tx - r.camX) * 0.12;

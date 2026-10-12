@@ -4,14 +4,16 @@ import { VIEW_W, VIEW_H } from './render/renderer';
 /** 터치 컨트롤 배치 (뷰 좌표 400x225) */
 export const TOUCH = {
   stick: { x: 48, y: 158, r: 26 },
-  jump: { x: 368, y: 172, r: 17 },
-  use: { x: 330, y: 192, r: 12 },
+  aim: { x: 346, y: 150, r: 26 },
+  jump: { x: 382, y: 203, r: 13 },
+  use: { x: 344, y: 207, r: 10 },
   bag: { x: 302, y: 74, w: 46, h: 14 },
   pause: { x: 352, y: 74, w: 44, h: 14 },
 };
 
 type TouchRole =
   | { kind: 'stick' }
+  | { kind: 'aimstick' }
   | { kind: 'key'; code: string }
   | { kind: 'aim' }
   | { kind: 'mouse' };
@@ -34,6 +36,14 @@ export class Input {
   stickX = 0;
   stickY = 0;
   stickActive = false;
+  /** 오른쪽 조준 조이스틱: 누른 채 방향을 정하고 떼면 발사 */
+  aimStickActive = false;
+  aimDX = 0;
+  aimDY = 0;
+  aimAngle = 0;
+  /** 마지막 조준 입력 출처 */
+  aimSource: 'pointer' | 'stick' = 'pointer';
+  private aimFire = false;
   private touches = new Map<number, TouchRole>();
   private canvas: HTMLCanvasElement;
   onFirstGesture: (() => void) | null = null;
@@ -99,6 +109,7 @@ export class Input {
   }
 
   private updateMouse(cx: number, cy: number): void {
+    this.aimSource = 'pointer';
     const p = this.toView(cx, cy);
     this.mouseX = p.x;
     this.mouseY = p.y;
@@ -115,8 +126,10 @@ export class Input {
       if (!role) continue;
       this.touches.set(t.identifier, role);
       if (role.kind === 'stick') this.updateStick(p.x, p.y);
+      else if (role.kind === 'aimstick') this.updateAim(p.x, p.y);
       else if (role.kind === 'key') this.simulateKey(role.code, true);
       else {
+        if (role.kind === 'aim') this.aimSource = 'pointer';
         this.mouseX = p.x;
         this.mouseY = p.y;
         this.mouseDown = true;
@@ -131,7 +144,8 @@ export class Input {
     const inRect = (b: { x: number; y: number; w: number; h: number }): boolean => x >= b.x - 2 && x <= b.x + b.w + 2 && y >= b.y - 2 && y <= b.y + b.h + 2;
     if (inRect(T.bag)) return { kind: 'key', code: 'Tab' };
     if (inRect(T.pause)) return { kind: 'key', code: 'Escape' };
-    if (near(T.jump, 8)) return { kind: 'key', code: 'Space' };
+    if (near(T.jump, 6)) return { kind: 'key', code: 'Space' };
+    if (near(T.aim, 10) && !this.aimStickActive) return { kind: 'aimstick' };
     if (near(T.use, 6)) return { kind: 'key', code: 'KeyE' };
     if (y >= VIEW_H - 24 && x < 251) return { kind: 'key', code: 'Digit' + Math.min(4, 1 + Math.floor((x - 3) / 62)) };
     if (x < 130 && y > 90 && !this.stickActive) return { kind: 'stick' };
@@ -156,6 +170,36 @@ export class Input {
     this.setKey('KeyW', dy < -0.6);
   }
 
+  private updateAim(x: number, y: number): void {
+    const s = TOUCH.aim;
+    let dx = (x - s.x) / s.r;
+    let dy = (y - s.y) / s.r;
+    const l = Math.hypot(dx, dy);
+    if (l > 1) {
+      dx /= l;
+      dy /= l;
+    }
+    this.aimDX = dx;
+    this.aimDY = dy;
+    this.aimStickActive = true;
+    if (l > 0.25) {
+      this.aimAngle = Math.atan2(dy, dx);
+      this.aimSource = 'stick';
+    }
+  }
+
+  /** 조준 조이스틱이 충분히 기울어져 있는지 */
+  aimReady(): boolean {
+    return this.aimStickActive && Math.hypot(this.aimDX, this.aimDY) > 0.25;
+  }
+
+  /** 조준 조이스틱을 떼서 발사 요청이 있었는지 (한 번 읽으면 사라짐) */
+  consumeAimFire(): boolean {
+    const f = this.aimFire;
+    this.aimFire = false;
+    return f;
+  }
+
   private setKey(code: string, on: boolean): void {
     if (on === this.keys.has(code)) return;
     this.simulateKey(code, on);
@@ -168,7 +212,9 @@ export class Input {
       if (!role) continue;
       const p = this.toView(t.clientX, t.clientY);
       if (role.kind === 'stick') this.updateStick(p.x, p.y);
+      else if (role.kind === 'aimstick') this.updateAim(p.x, p.y);
       else if (role.kind === 'aim' || role.kind === 'mouse') {
+        if (role.kind === 'aim') this.aimSource = 'pointer';
         this.mouseX = p.x;
         this.mouseY = p.y;
       }
@@ -188,6 +234,11 @@ export class Input {
         this.setKey('KeyA', false);
         this.setKey('KeyD', false);
         this.setKey('KeyW', false);
+      } else if (role.kind === 'aimstick') {
+        if (e.type === 'touchend' && this.aimReady()) this.aimFire = true;
+        this.aimStickActive = false;
+        this.aimDX = 0;
+        this.aimDY = 0;
       } else if (role.kind === 'key') this.simulateKey(role.code, false);
       else {
         this.mouseDown = false;

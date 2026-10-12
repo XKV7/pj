@@ -176,21 +176,23 @@ export function drawHud(ctx: CanvasRenderingContext2D, g: Game, fps: number): vo
     if (bn.sub) text(ctx, bn.sub, VIEW_W / 2, 85, { size: 6, align: 'center', color: '#c0b0d8', alpha: Math.max(0, a) });
   }
 
-  // 조준선
-  const mx = g.input.mouseX;
-  const my = g.input.mouseY;
-  ctx.strokeStyle = 'rgba(255,240,200,0.8)';
-  ctx.lineWidth = 0.6;
-  ctx.beginPath();
-  ctx.moveTo(mx - 4, my);
-  ctx.lineTo(mx - 1.5, my);
-  ctx.moveTo(mx + 1.5, my);
-  ctx.lineTo(mx + 4, my);
-  ctx.moveTo(mx, my - 4);
-  ctx.lineTo(mx, my - 1.5);
-  ctx.moveTo(mx, my + 1.5);
-  ctx.lineTo(mx, my + 4);
-  ctx.stroke();
+  // 조준선 (조준 조이스틱 사용 중에는 숨김)
+  if (g.input.aimSource !== 'stick') {
+    const mx = g.input.mouseX;
+    const my = g.input.mouseY;
+    ctx.strokeStyle = 'rgba(255,240,200,0.8)';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(mx - 4, my);
+    ctx.lineTo(mx - 1.5, my);
+    ctx.moveTo(mx + 1.5, my);
+    ctx.lineTo(mx + 4, my);
+    ctx.moveTo(mx, my - 4);
+    ctx.lineTo(mx, my - 1.5);
+    ctx.moveTo(mx, my + 1.5);
+    ctx.lineTo(mx, my + 4);
+    ctx.stroke();
+  }
 
   if (g.debug) drawDebug(ctx, g, fps);
 
