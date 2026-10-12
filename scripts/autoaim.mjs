@@ -43,12 +43,12 @@ const res = await page.evaluate(async () => {
   const e = g.enemies[0];
   return { ex: e.body.cx, ey: e.body.cy, camX: cam.camX, camY: cam.camY };
 });
-// 약 13° 위: 좁혀진 범위(±10°) 밖이므로 보정되지 않아야 함
+// 약 13° 위: 범위(±35°) 안이므로 보정되어야 함
 await page.mouse.move(r.x + (res.ex - res.camX) * r.s, r.y + (res.ey - res.camY - 22) * r.s);
 await page.waitForTimeout(300);
-console.log('13deg locked:', await page.evaluate(() => !!window.__app.game.aimTarget));
-// 약 7° 위: 범위 안이므로 보정되어야 함
-await page.mouse.move(r.x + (res.ex - res.camX) * r.s, r.y + (res.ey - res.camY - 12) * r.s);
+console.log('13deg locked (expect true):', await page.evaluate(() => !!window.__app.game.aimTarget));
+// 약 26° 위도 범위 안
+await page.mouse.move(r.x + (res.ex - res.camX) * r.s, r.y + (res.ey - res.camY - 48) * r.s);
 await page.waitForTimeout(300);
 const out = await page.evaluate(() => {
   const g = window.__app.game;
