@@ -162,7 +162,7 @@ export function drawSettings(ctx: CanvasRenderingContext2D, input: Input, muted:
     wrap(ctx, desc, 190, 5.5).forEach((l, i) => text(ctx, l, 60, y + 19 + i * 7, { size: 5.5, color: '#b8a8d0' }));
     if (button(ctx, input, VIEW_W - 120, y + 1, 60, 14, on ? '켜짐' : '꺼짐', on, 7)) onToggle();
   };
-  row(52, '자동 조준', '조준 방향 근처(약 20°)에 적이 있으면 조준을 그 적에게 자동으로 맞춥니다. 벽에 가려 보이지 않는 적은 제외합니다. 보정된 대상에는 표시가 나타납니다.', settings.autoAim, () => {
+  row(52, '자동 조준', '조준 방향 근처(약 10°)에 적이 있으면 조준을 그 적에게 자동으로 맞춥니다. 벽에 가려 보이지 않는 적은 제외합니다. 보정된 대상에는 표시가 나타납니다.', settings.autoAim, () => {
     settings.autoAim = !settings.autoAim;
     saveSettings();
   });

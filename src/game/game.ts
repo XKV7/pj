@@ -333,9 +333,9 @@ export class Game {
   /** 자동 조준이 현재 보정 중인 대상 (HUD 표시용) */
   aimTarget: Target | null = null;
 
-  /** 자동 조준: 조준 방향 근처(±20°)에서 보이는 적을 찾아 그 방향으로 보정한 각도를 돌려준다 */
+  /** 자동 조준: 조준 방향 근처(±10°)에서 보이는 적을 찾아 그 방향으로 보정한 각도를 돌려준다 */
   aimAssist(x: number, y: number, angle: number): number {
-    const MAX_DIFF = 0.35;
+    const MAX_DIFF = 0.175; // 약 10°
     const RANGE = 240;
     let best: Target | null = null;
     let bestScore = Infinity;
